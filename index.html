@@ -677,7 +677,10 @@ return out;
       }
     }
 
-    function speichernEintrag() {
+    async function speichernEintrag() {
+      console.log("Kliknuto Speichern");
+
+  const generated = generiereEintrag();
       const generated = generiereEintrag();
 
       const entry = {
@@ -697,6 +700,10 @@ return out;
         alert("Bitte mindestens Datum, Symptom oder Bemerkung eingeben.");
         return;
       }
+
+      data.push(entry);
+saveData();
+
 
       data.push(entry);
      saveData();
