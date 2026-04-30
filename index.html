@@ -1040,5 +1040,27 @@ setStatus("Formular ist bereit für einen neuen Eintrag.", "ok");
   markAllFields();
 });
   </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAAS4DmyNv06qSrSYSGzvivIsxh1FelEy4",
+    authDomain: "gesundheitstagebuch-73915.firebaseapp.com",
+    projectId: "gesundheitstagebuch-73915",
+    storageBucket: "gesundheitstagebuch-73915.firebasestorage.app",
+    messagingSenderId: "413311270955",
+    appId: "1:413311270955:web:bbedd4430097e9c307ea6e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // da tvoj postojeći kod može koristiti Firebase
+  window.db = db;
+  window.addDoc = addDoc;
+  window.collection = collection;
+  window.getDocs = getDocs;
+</script>
 </body>
 </html>
