@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gesundheitstagebuch</title>
+
+  <link rel="icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#eaf4ff">
+
+  <style>
+    :root{
+      --bg: #eaf4ff;
+      --card: #ffffff;
+      --border: #d7e3f2;
+      --text: #223046;
+      --muted: #5b6b80;
+      --blue-btn: #dceeff;
+      --blue-btn-hover: #cfe6ff;
+      --green-btn: #dff5df;
+      --green-btn-hover: #cff0cf;
+      --yellow: #fff3cd;
+      --green: #d4edda;
+      --red: #f8d7da;
+      --result: #f8fbff;
+      --shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      margin: 0 0 18px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 800px) {
+      .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      margin-top: 5px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #bfd0e3;
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .hint {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .button-row button {
+      flex: 1;
+      min-width: 180px;
+      cursor: pointer;
+      transition: 0.15s ease;
+      border: 1px solid #bed2e8;
+      background: var(--blue-btn);
+    }
+
+    .button-row button:hover {
+      background: var(--blue-btn-hover);
+    }
+
+    .button-save {
+      background: var(--green-btn) !important;
+      border-color: #bfe0c5 !important;
+    }
+
+    .button-save:hover {
+      background: var(--green-btn-hover) !important;
+    }
+
+    input.prazno,
+    textarea.prazno,
+    select.prazno {
+      background-color: var(--yellow) !important;
+    }
+
+    input.popunjeno,
+    textarea.popunjeno,
+    select.popunjeno {
+      background-color: var(--green) !important;
+    }
+
+    input.crveno,
+    textarea.crveno,
+    select.crveno {
+      background-color: var(--red) !important;
+    }
+
+    .status {
+      margin-top: 14px;
+      padding: 10px;
+      border-radius: 10px;
+      background: #eef5ff;
+      border: 1px solid #cdddf7;
+      font-weight: bold;
+    }
+
+    .status.warn {
+      background: #fde2e1;
+      border-color: #f0b3ae;
+      color: #8a1c1c;
+    }
+
+    .status.ok {
+      background: #e7f6ea;
+      border-color: #bfe0c5;
+      color: #1e5f2d;
+    }
+
+    .result-box {
+      background: var(--result);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    .entry-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .entry-date {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 800px) {
+      .checkbox-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .checkbox-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border: 1px solid #d4e0ee;
+      border-radius: 10px;
+      background: #f8fbff;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      transform: scale(1.1);
+    }
+
+    .mini-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: block;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-line {
+      width: 18px;
+      height: 3px;
+      background: #2563eb;
+      border-radius: 2px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #dc2626;
+    }
+
+    .legend-square {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: #7c3aed;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Gesundheitstagebuch</h1>
+    <p class="subtitle">Verlauf und Therapie im Überblick</p>
+
+    <div class="section">
+      <h2 class="section-title">1. Symptom</h2>
+
+      <div class="grid-2">
+        <div>
+          <label for="datum">Datum</label>
+          <input id="datum" type="date">
+        </div>
+        <div>
+          <label for="zeit">Uhrzeit</label>
+          <input id="zeit" type="time">
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div>
+          <label for="koerper">Körperteil</label>
+          <select id="koerper">
+            <option value="">-- auswählen --</option>
+            <option>Kopf</option>
+            <option>linkes Sprunggelenk</option>
+            <option>rechtes Sprunggelenk</option>
+            <option>linker Fuß</option>
+            <option>rechter Fuß</option>
+            <option>mittlerer Fußbereich</option>
+            <option>linkes Bein</option>
+            <option>rechtes Bein</option>
+            <option>ganzer Körper</option>
+            <option>Gesicht</option>
+            <option>Hände</option>
+            <option>Körperhaut</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="symptom">Symptom</label>
+          <select id="symptom">
+            <option value="">-- auswählen --</option>
+            <option>Schmerz</option>
+            <option>dumpfer Schmerz</option>
+            <option>stechender Schmerz</option>
+            <option>Zittern</option>
+            <option>Kribbeln</option>
+            <option>Schwellung</option>
+            <option>Instabilität</option>
+            <option>visuelle Störungen</option>
+            <option>Sturz</option>
+            <option>geringere Schmerzen</option>
+            <option>trockene Haut</option>
+            <option>Rosazea</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="intens">Intensität (0-10)</label>
+          <input id="intens" type="number" min="0" max="10" placeholder="z. B. 7">
+        </div>
+      </div>
+
+      <label for="ausloeser">Auslöser</label>
+      <select id="ausloeser">
+        <option value="">-- auswählen --</option>
+        <option>in Ruhe</option>
+        <option>beim Gehen</option>
+        <option>beim Vorbeugen</option>
+        <option>beim Vorbeugen im Sitzen</option>
+        <option>nach Belastung</option>
+        <option>nach einer Injektion</option>
+        <option>nach kurzer Gehstrecke</option>
+        <option>abends nach Belastung</option>
+        <option>ohne klaren Auslöser</option>
+        <option>im Schlaf</option>
+        <option>nach Handarbeit</option>
+        <option>nach Schreibarbeit</option>
+      </select>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">2. Therapie</h2>
+
+      <div class="grid-2">
+        <div>
+          <label for="therapie">Therapie durchgeführt</label>
+          <select id="therapie">
+            <option value="">-- auswählen --</option>
+            <option>JA</option>
+            <option>NEIN</option>
+          </select>
+        </div>
+        <div>
+          <label for="sonstigeMedikamente">Sonstige Medikamente</label>
+          <input id="sonstigeMedikamente" type="text" placeholder="nur ausfüllen, wenn Sonstige gewählt wurde">
+        </div>
+      </div>
+
+      <label>Medikamente</label>
+      <div class="checkbox-grid">
+        <label class="checkbox-item"><input type="checkbox" value="Voltaren susp" class="medikament"> Voltaren susp</label>
+        <label class="checkbox-item"><input type="checkbox" value="Voltadol gel" class="medikament"> Voltadol gel</label>
+        <label class="checkbox-item"><input type="checkbox" value="Novalgin tbl" class="medikament"> Novalgin tbl</label>
+        <label class="checkbox-item"><input type="checkbox" value="Infusion" class="medikament"> Infusion</label>
+        <label class="checkbox-item"><input type="checkbox" value="Spritze" class="medikament"> Spritze</label>
+        <label class="checkbox-item"><input type="checkbox" value="Sonstige" class="medikament" id="medSonstige"> Sonstige</label>
+      </div>
+      <div class="mini-note">Mehrere Medikamente pro Eintrag sind möglich.</div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">3. Bemerkung</h2>
+      <label for="bem">Bemerkung</label>
+      <textarea id="bem" placeholder="Kurze zusätzliche Notiz auf Deutsch"></textarea>
+
+      <div class="button-row">
+        <button onclick="heutigesDatum()">Heutiges Datum</button>
+        <button onclick="generiereEintrag()">Deutsch generieren</button>
+        <button onclick="kopierenEintrag()">Eintrag kopieren</button>
+        <button class="button-save" onclick="speichernEintrag()">Speichern</button>
+      </div>
+
+      <div class="button-row">
+        <button onclick="neuerEintrag()">Neuer Eintrag</button>
+        <button onclick="letztenLoeschen()">Letzten Eintrag löschen</button>
+        <button onclick="berichtErstellen()">Bericht erstellen</button>
+        <button onclick="berichtKopieren()">Bericht kopieren</button>
+      </div>
+
+      <div class="button-row">
+        <button onclick="exportTXT()">Export TXT</button>
+        <button onclick="exportCSV()">Export CSV</button>
+      </div>
+
+      <div id="status" class="status">Bereit für einen neuen Eintrag.</div>
+
+      <label>Generierter deutscher Eintrag</label>
+      <div id="deutsch" class="result-box"></div>
+
+      <label>Bericht für Arzt</label>
+      <div id="report" class="result-box"></div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Analyse</h2>
+      <div id="analyse" class="result-box"></div>
+      <div id="trendInfo" class="status">Noch keine Trendanalyse möglich.</div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Kombinierter Verlauf: Intensität + Medikamente</h2>
+      <canvas id="chart" width="980" height="360"></canvas>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-line"></span> Intensität</div>
+        <div class="legend-item"><span class="legend-dot"></span> Intensität 7 oder höher</div>
+        <div class="legend-item"><span class="legend-square"></span> Medikamente / Therapie</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Einträge</h2>
+      <div id="liste"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "gesundheitstagebuch_final_v1";
+const DRAFT_KEY = "gesundheitstagebuch_draft_v1";
+
+function loadData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+let data = loadData();
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function text(v) {
+      return v ? v.trim() : "";
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function setStatus(msg, type = "") {
+      const el = $("status");
+      el.textContent = msg;
+      el.className = "status";
+      if (type === "ok") el.classList.add("ok");
+      if (type === "warn") el.classList.add("warn");
+    }
+
+    function getMedikamente() {
+      const boxes = document.querySelectorAll(".medikament:checked");
+      const arr = Array.from(boxes).map(b => b.value);
+
+      const sonstige = text($("sonstigeMedikamente").value);
+      if (arr.includes("Sonstige") && sonstige) {
+        arr[arr.indexOf("Sonstige")] = "Sonstige: " + sonstige;
+      }
+
+      return arr;
+    }
+function getFormState() {
+  return {
+    datum: $("datum").value,
+    zeit: $("zeit").value,
+    koerper: $("koerper").value,
+    symptom: $("symptom").value,
+    intens: $("intens").value,
+    ausloeser: $("ausloeser").value,
+    therapie: $("therapie").value,
+    bemerkung: $("bem").value,
+    sonstigeMedikamente: $("sonstigeMedikamente").value,
+    medikamente: Array.from(document.querySelectorAll(".medikament:checked")).map(cb => cb.value),
+    deutsch: $("deutsch").textContent
+  };
+}
+
+function setFormState(state) {
+  if (!state) return;
+
+  $("datum").value = state.datum || "";
+  $("zeit").value = state.zeit || "";
+  $("koerper").value = state.koerper || "";
+  $("symptom").value = state.symptom || "";
+  $("intens").value = state.intens || "";
+  $("ausloeser").value = state.ausloeser || "";
+  $("therapie").value = state.therapie || "";
+  $("bem").value = state.bemerkung || "";
+  $("sonstigeMedikamente").value = state.sonstigeMedikamente || "";
+  $("deutsch").textContent = state.deutsch || "";
+
+  document.querySelectorAll(".medikament").forEach(cb => {
+    cb.checked = Array.isArray(state.medikamente) && state.medikamente.includes(cb.value);
+  });
+
+  markAllFields();
+}
+
+function saveDraft() {
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(getFormState()));
+}
+
+function restoreDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY));
+    setFormState(draft);
+  } catch {}
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+}
+    function markField(el) {
+      el.classList.remove("prazno", "popunjeno", "crveno");
+
+      if (el.type === "checkbox") return;
+
+      const value = (el.value || "").trim();
+      if (value === "") {
+        el.classList.add("prazno");
+        return;
+      }
+
+      if (el.id === "intens") {
+        const n = Number(value);
+        if (!isNaN(n) && n >= 7) {
+          el.classList.add("crveno");
+          return;
+        }
+      }
+
+      el.classList.add("popunjeno");
+    }
+
+    function markAllFields() {
+      document.querySelectorAll("input:not([type='checkbox']), textarea, select").forEach(markField);
+    }
+
+    function heutigesDatum() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+     $("datum").value = `${yyyy}-${mm}-${dd}`;
+markAllFields();
+saveDraft();
+setStatus("Heutiges Datum wurde eingetragen.", "ok");
+    }
+
+    function generiereEintrag() {
+      const datum = text($("datum").value);
+      const zeit = text($("zeit").value);
+      const koerper = text($("koerper").value);
+      const symptom = text($("symptom").value);
+      const intens = text($("intens").value);
+      const ausloeser = text($("ausloeser").value);
+      const therapie = text($("therapie").value);
+      const bem = text($("bem").value);
+      const meds = getMedikamente();
+
+      let out = "DATUM: " + (datum || "-");
+      if (zeit) out += ", Uhrzeit: " + zeit;
+      out += "\nEREIGNIS / SYMPTOM:\n";
+
+      let satz = ausloeser ? ausloeser.charAt(0).toUpperCase() + ausloeser.slice(1) : "Ohne klaren Auslöser";
+
+      if (symptom) {
+        satz += " trat ";
+        satz += symptom === "Sturz" ? "ein Sturz" : symptom;
+        satz += " auf";
+      } else {
+        satz += " trat ein Symptom auf";
+      }
+
+      if (koerper) satz += " im Bereich " + koerper;
+      if (intens !== "") satz += ". Intensität: " + intens + "/10";
+      satz += ".";
+
+      out += satz;
+
+      out += "\nTHERAPIE:\n";
+      out += "Therapie durchgeführt: " + (therapie || "-");
+
+      if (meds.length > 0) {
+        out += "\nMedikamente: " + meds.join(", ");
+      } else {
+        out += "\nMedikamente: -";
+      }
+
+      if (bem) {
+        out += "\nBEMERKUNG:\n" + bem;
+      }
+
+      $("deutsch").textContent = out;
+saveDraft();
+setStatus("Deutscher Eintrag wurde generiert.", "ok");
+return out;
+    }
+
+    async function kopierenEintrag() {
+      let content = $("deutsch").textContent.trim();
+      if (!content) content = generiereEintrag().trim();
+
+      if (!content) {
+        setStatus("Kein Eintrag vorhanden.", "warn");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(content);
+        setStatus("Eintrag wurde kopiert.", "ok");
+      } catch {
+        setStatus("Kopieren nicht möglich. Bitte Text manuell markieren.", "warn");
+      }
+    }
+
+    function speichernEintrag() {
+      const generated = generiereEintrag();
+
+      const entry = {
+        datum: text($("datum").value),
+        zeit: text($("zeit").value),
+        koerper: text($("koerper").value),
+        symptom: text($("symptom").value),
+        intens: text($("intens").value) === "" ? null : Number(text($("intens").value)),
+        ausloeser: text($("ausloeser").value),
+        therapie: text($("therapie").value),
+        medikamente: getMedikamente(),
+        bemerkung: text($("bem").value),
+        deutsch: generated
+      };
+
+      if (!entry.datum && !entry.symptom && !entry.bemerkung) {
+        alert("Bitte mindestens Datum, Symptom oder Bemerkung eingeben.");
+        return;
+      }
+
+      data.push(entry);
+     saveData();
+
+      renderEintraege();
+      berichtErstellen();
+      neuerEintrag(false);
+      setStatus("Eintrag wurde gespeichert.", "ok");
+    }
+
+    function neuerEintrag(clearDate = true) {
+      if (clearDate) $("datum").value = "";
+      $("zeit").value = "";
+      $("koerper").value = "";
+      $("symptom").value = "";
+      $("intens").value = "";
+      $("ausloeser").value = "";
+      $("therapie").value = "";
+      $("bem").value = "";
+      $("sonstigeMedikamente").value = "";
+      document.querySelectorAll(".medikament").forEach(cb => cb.checked = false);
+     $("deutsch").textContent = "";
+markAllFields();
+clearDraft();
+setStatus("Formular ist bereit für einen neuen Eintrag.", "ok");
+    }
+
+    function letztenLoeschen() {
+      if (data.length === 0) {
+        setStatus("Keine Einträge zum Löschen vorhanden.", "warn");
+        return;
+      }
+
+      if (!confirm("Möchtest du den letzten Eintrag wirklich löschen?")) {
+        setStatus("Löschen wurde abgebrochen.");
+        return;
+      }
+
+      data.pop();
+      saveData();
+      renderEintraege();
+      berichtErstellen();
+      setStatus("Letzter Eintrag wurde gelöscht.", "ok");
+    }
+
+    function sortierteDaten() {
+      return [...data].sort((a, b) => {
+        const aa = (a.datum || "") + " " + (a.zeit || "");
+        const bb = (b.datum || "") + " " + (b.zeit || "");
+        return aa.localeCompare(bb);
+      });
+    }
+
+    function berichtErstellen() {
+      if (data.length === 0) {
+        $("report").textContent = "Keine gespeicherten Einträge vorhanden.";
+        return;
+      }
+
+      const arr = sortierteDaten();
+      let txt = "Symptomtagebuch\n\n";
+
+      arr.forEach(e => {
+        txt += "----------------------------------\n\n";
+        txt += e.deutsch.trim() + "\n";
+        txt += "UNTERSUCHUNG / ARZT:\n";
+        txt += "BEFUND: NEIN\n\n";
+      });
+
+      txt += "----------------------------------";
+      $("report").textContent = txt;
+      setStatus("Bericht wurde erstellt.", "ok");
+    }
+
+    async function berichtKopieren() {
+      let txt = $("report").textContent.trim();
+      if (!txt) {
+        berichtErstellen();
+        txt = $("report").textContent.trim();
+      }
+
+      if (!txt) {
+        setStatus("Kein Bericht vorhanden.", "warn");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(txt);
+        setStatus("Bericht wurde kopiert.", "ok");
+      } catch {
+        setStatus("Bericht konnte nicht kopiert werden.", "warn");
+      }
+    }
+
+    function exportTXT() {
+      if (data.length === 0) {
+        setStatus("Keine Daten für Export vorhanden.", "warn");
+        return;
+      }
+
+      const arr = sortierteDaten();
+      let txt = "Symptomtagebuch\n\n";
+
+      arr.forEach(e => {
+        txt += "----------------------------------\n\n";
+        txt += e.deutsch.trim() + "\n";
+        txt += "UNTERSUCHUNG / ARZT:\n";
+        txt += "BEFUND: NEIN\n\n";
+      });
+
+      txt += "----------------------------------";
+      downloadFile(txt, "symptomtagebuch.txt", "text/plain;charset=utf-8");
+      setStatus("TXT-Datei wurde exportiert.", "ok");
+    }
+
+    function exportCSV() {
+      if (data.length === 0) {
+        setStatus("Keine Daten für Export vorhanden.", "warn");
+        return;
+      }
+
+      let csv = "Datum;Uhrzeit;Körperteil;Symptom;Auslöser;Intensität;Therapie;Medikamente;Bemerkung\n";
+
+      sortierteDaten().forEach(e => {
+        csv += [
+          e.datum || "",
+          e.zeit || "",
+          e.koerper || "",
+          e.symptom || "",
+          e.ausloeser || "",
+          e.intens ?? "",
+          e.therapie || "",
+          (e.medikamente || []).join(", ").replace(/;/g, ","),
+          (e.bemerkung || "").replace(/;/g, ",").replace(/\n/g, " ")
+        ].join(";") + "\n";
+      });
+
+      downloadFile(csv, "symptomtagebuch.csv", "text/csv;charset=utf-8");
+      setStatus("CSV-Datei wurde exportiert.", "ok");
+    }
+
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function renderEintraege() {
+      const container = $("liste");
+      container.innerHTML = "";
+
+      [...data].reverse().forEach((e) => {
+        const html = `
+          <div class="entry-card">
+            <div class="entry-date">${escapeHtml(e.datum || "-")} ${escapeHtml(e.zeit || "")}</div>
+            <pre>${escapeHtml(e.deutsch)}</pre>
+          </div>
+        `;
+        container.innerHTML += html;
+      });
+
+      renderAnalyse();
+      zeichneChart();
+    }
+
+    function renderAnalyse() {
+      if (data.length === 0) {
+        $("analyse").textContent = "Keine Analyse möglich.";
+        $("trendInfo").textContent = "Noch keine Trendanalyse möglich.";
+        $("trendInfo").className = "status";
+        return;
+      }
+
+      const werte = data.filter(e => typeof e.intens === "number" && !isNaN(e.intens)).map(e => e.intens);
+      const count = data.length;
+      const mitIntens = werte.length;
+      const max = mitIntens ? Math.max(...werte) : "-";
+      const avg = mitIntens ? (werte.reduce((a,b)=>a+b,0) / mitIntens).toFixed(1) : "-";
+      const stark = werte.filter(v => v >= 7).length;
+      const mitTherapie = data.filter(e => e.therapie === "JA").length;
+      const ohneTherapie = data.filter(e => e.therapie === "NEIN").length;
+      const mitMedis = data.filter(e => Array.isArray(e.medikamente) && e.medikamente.length > 0).length;
+
+      $("analyse").innerHTML =
+        "Anzahl Einträge: " + count + "<br>" +
+        "Einträge mit Intensität: " + mitIntens + "<br>" +
+        "Durchschnittliche Intensität: " + avg + "<br>" +
+        "Höchste Intensität: " + max + "<br>" +
+        "Einträge mit Intensität 7 oder höher: " + stark + "<br>" +
+        "Therapie JA: " + mitTherapie + "<br>" +
+        "Therapie NEIN: " + ohneTherapie + "<br>" +
+        "Einträge mit Medikamenten: " + mitMedis;
+
+      renderTrend();
+    }
+
+    function renderTrend() {
+      const arr = sortierteDaten().filter(e => typeof e.intens === "number" && !isNaN(e.intens));
+      const box = $("trendInfo");
+      box.className = "status";
+
+      if (arr.length < 3) {
+        box.textContent = "Für eine Trendanalyse werden mindestens 3 Einträge mit Intensität benötigt.";
+        return;
+      }
+
+      const letzte3 = arr.slice(-3).map(e => e.intens);
+
+      if (letzte3[0] < letzte3[1] && letzte3[1] < letzte3[2]) {
+        box.textContent = "Achtung: Die letzten 3 Intensitätswerte steigen an (" + letzte3.join(" -> ") + ").";
+        box.classList.add("warn");
+      } else if (letzte3[0] > letzte3[1] && letzte3[1] > letzte3[2]) {
+        box.textContent = "Gut: Die letzten 3 Intensitätswerte sinken (" + letzte3.join(" -> ") + ").";
+        box.classList.add("ok");
+      } else {
+        box.textContent = "Kein klarer Trend in den letzten 3 Intensitätswerten (" + letzte3.join(" -> ") + ").";
+      }
+    }
+
+    function zeichneChart() {
+      const canvas = $("chart");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const arr = sortierteDaten().filter(e => typeof e.intens === "number" && !isNaN(e.intens));
+
+      if (arr.length === 0) {
+        ctx.font = "14px Arial";
+        ctx.fillStyle = "#334155";
+        ctx.fillText("Keine Daten vorhanden.", 20, 40);
+        return;
+      }
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const left = 60;
+      const right = 25;
+      const top = 20;
+      const bottom = 60;
+
+      const chartW = w - left - right;
+      const chartH = h - top - bottom;
+
+      ctx.strokeStyle = "#94a3b8";
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(left, h - bottom);
+      ctx.lineTo(w - right, h - bottom);
+      ctx.stroke();
+
+      for (let y = 0; y <= 10; y++) {
+        const py = top + chartH - (y / 10) * chartH;
+        ctx.strokeStyle = "#e8eef6";
+        ctx.beginPath();
+        ctx.moveTo(left, py);
+        ctx.lineTo(w - right, py);
+        ctx.stroke();
+
+        ctx.fillStyle = "#475569";
+        ctx.font = "13px Arial";
+        ctx.fillText(String(y), 30, py + 4);
+      }
+
+      const points = arr.map((e, i) => {
+        const x = arr.length === 1 ? left + chartW / 2 : left + (i / (arr.length - 1)) * chartW;
+        const y = top + chartH - (e.intens / 10) * chartH;
+        return { x, y, label: e.datum || ("Eintrag " + (i + 1)), intens: e.intens, therapie: e.therapie, meds: e.medikamente || [] };
+      });
+
+      ctx.strokeStyle = "#2563eb";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      points.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      points.forEach(p => {
+        ctx.beginPath();
+        ctx.fillStyle = p.intens >= 7 ? "#dc2626" : "#16a34a";
+        ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        if ((p.meds && p.meds.length > 0) || p.therapie === "JA") {
+          ctx.fillStyle = "#7c3aed";
+          ctx.fillRect(p.x - 5, h - bottom + 18, 10, 10);
+        }
+      });
+
+      ctx.fillStyle = "#334155";
+      ctx.font = "12px Arial";
+      points.forEach(p => {
+        const shortLabel = p.label ? p.label.slice(5) : "";
+        ctx.fillText(shortLabel, Math.max(left, p.x - 18), h - 20);
+      });
+    }
+
+  window.addEventListener("load", function () {
+  document.querySelectorAll("input:not([type='checkbox']), textarea, select").forEach(el => {
+    el.addEventListener("input", () => {
+      markField(el);
+      saveDraft();
+    });
+
+    el.addEventListener("change", () => {
+      markField(el);
+      saveDraft();
+    });
+
+    markField(el);
+  });
+
+  document.querySelectorAll(".medikament").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const sonstigeBox = $("sonstigeMedikamente");
+
+      if ($("medSonstige").checked) {
+        sonstigeBox.classList.remove("prazno");
+        sonstigeBox.classList.add("popunjeno");
+      } else if (!text(sonstigeBox.value)) {
+        sonstigeBox.classList.remove("popunjeno");
+        sonstigeBox.classList.add("prazno");
+      }
+
+      saveDraft();
+    });
+  });
+
+  restoreDraft();
+  renderEintraege();
+  berichtErstellen();
+  markAllFields();
+});
+  </script>
+</body>
+</html>
