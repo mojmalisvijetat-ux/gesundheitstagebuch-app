@@ -678,9 +678,6 @@ return out;
     }
 
     async function speichernEintrag() {
-      console.log("Kliknuto Speichern");
-
-  const generated = generiereEintrag();
       const generated = generiereEintrag();
 
       const entry = {
@@ -704,9 +701,13 @@ return out;
       data.push(entry);
 saveData();
 
-
-      data.push(entry);
-     saveData();
+//  SPREMI U FIREBASE
+try {
+  await addDoc(collection(window.db, "eintraege"), entry);
+  console.log("Spremljeno u cloud");
+} catch (e) {
+  console.error("Greška:", e);
+}
 
       renderEintraege();
       berichtErstellen();
@@ -1046,8 +1047,9 @@ setStatus("Formular ist bereit für einen neuen Eintrag.", "ok");
   berichtErstellen();
   markAllFields();
 });
-  </script>
-  <script type="module">
+</script>
+
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1063,11 +1065,11 @@ setStatus("Formular ist bereit für einen neuen Eintrag.", "ok");
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // da tvoj postojeći kod može koristiti Firebase
   window.db = db;
   window.addDoc = addDoc;
   window.collection = collection;
   window.getDocs = getDocs;
 </script>
+
 </body>
 </html>
