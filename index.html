@@ -677,33 +677,49 @@ return out;
       }
     }
 
-    async function speichernEintrag() {
-      console.log("Kliknuto Speichern");
+  async function speichernEintrag() {
+  console.log("Kliknuto Speichern");
 
   const generated = generiereEintrag();
-      const generated = generiereEintrag();
 
-      const entry = {
-        datum: text($("datum").value),
-        zeit: text($("zeit").value),
-        koerper: text($("koerper").value),
-        symptom: text($("symptom").value),
-        intens: text($("intens").value) === "" ? null : Number(text($("intens").value)),
-        ausloeser: text($("ausloeser").value),
-        therapie: text($("therapie").value),
-        medikamente: getMedikamente(),
-        bemerkung: text($("bem").value),
-        deutsch: generated
-      };
+  const entry = {
+    datum: text($("datum").value),
+    zeit: text($("zeit").value),
+    koerper: text($("koerper").value),
+    symptom: text($("symptom").value),
+    intens: text($("intens").value) === "" ? null : Number(text($("intens").value)),
+    ausloeser: text($("ausloeser").value),
+    therapie: text($("therapie").value),
+    medikamente: getMedikamente(),
+    bemerkung: text($("bem").value),
+    deutsch: generated
+  };
+
+  if (!entry.datum && !entry.symptom && !entry.bemerkung) {
+    alert("Bitte mindestens Datum, Symptom oder Bemerkung eingeben.");
+    return;
+  }
+
+  data.push(entry);
+  saveData();
+
+  try {
+    await window.addDoc(window.collection(window.db, "eintraege"), entry);
+    console.log("Spremljeno u cloud");
+  } catch (e) {
+    console.error("Greška pri spremanju u Firebase:", e);
+  }
+
+  renderEintraege();
+  berichtErstellen();
+  neuerEintrag(false);
+  setStatus("Eintrag wurde gespeichert.", "ok");
+}
 
       if (!entry.datum && !entry.symptom && !entry.bemerkung) {
         alert("Bitte mindestens Datum, Symptom oder Bemerkung eingeben.");
         return;
       }
-
-      data.push(entry);
-saveData();
-
 
       data.push(entry);
      saveData();
