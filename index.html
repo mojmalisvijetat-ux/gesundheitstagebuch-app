@@ -677,43 +677,33 @@ return out;
       }
     }
 
-  async function speichernEintrag() {
-  console.log("Kliknuto Speichern");
+    async function speichernEintrag() {
+      console.log("Kliknuto Speichern");
 
   const generated = generiereEintrag();
-  
-    const entry = {
-    datum: text($("datum").value),
-    zeit: text($("zeit").value),
-    koerper: text($("koerper").value),
-    symptom: text($("symptom").value),
-    intens: text($("intens").value) === "" ? null : Number(text($("intens").value)),
-    ausloeser: text($("ausloeser").value),
-    therapie: text($("therapie").value),
-    medikamente: getMedikamente(),
-    bemerkung: text($("bem").value),
-    deutsch: generated
-  };
+      const generated = generiereEintrag();
 
-  if (!entry.datum && !entry.symptom && !entry.bemerkung) {
-    alert("Bitte mindestens Datum, Symptom oder Bemerkung eingeben.");
-    return;
-  }
-
-  data.push(entry);
-  saveData();
-
-
-  renderEintraege();
-  berichtErstellen();
-  neuerEintrag(false);
-  setStatus("Eintrag wurde gespeichert.", "ok");
-}
+      const entry = {
+        datum: text($("datum").value),
+        zeit: text($("zeit").value),
+        koerper: text($("koerper").value),
+        symptom: text($("symptom").value),
+        intens: text($("intens").value) === "" ? null : Number(text($("intens").value)),
+        ausloeser: text($("ausloeser").value),
+        therapie: text($("therapie").value),
+        medikamente: getMedikamente(),
+        bemerkung: text($("bem").value),
+        deutsch: generated
+      };
 
       if (!entry.datum && !entry.symptom && !entry.bemerkung) {
         alert("Bitte mindestens Datum, Symptom oder Bemerkung eingeben.");
         return;
       }
+
+      data.push(entry);
+saveData();
+
 
       data.push(entry);
      saveData();
