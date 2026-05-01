@@ -681,8 +681,8 @@ return out;
   console.log("Kliknuto Speichern");
 
   const generated = generiereEintrag();
-
-  const entry = {
+  
+    const entry = {
     datum: text($("datum").value),
     zeit: text($("zeit").value),
     koerper: text($("koerper").value),
@@ -703,12 +703,6 @@ return out;
   data.push(entry);
   saveData();
 
-  try {
-    await window.addDoc(window.collection(window.db, "eintraege"), entry);
-    console.log("Spremljeno u cloud");
-  } catch (e) {
-    console.error("Greška pri spremanju u Firebase:", e);
-  }
 
   renderEintraege();
   berichtErstellen();
